@@ -263,6 +263,8 @@ conn_get(int sd, conn_state_t state, int ev_flags, int rsize, int udp)
 
     c->noreply = 0;
 
+    c->u_time = 0.0; /* Rajesh */
+
     stats_thread_incr(conn_total);
     stats_thread_incr(conn_curr);
 

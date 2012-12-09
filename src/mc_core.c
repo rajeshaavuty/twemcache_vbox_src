@@ -245,6 +245,8 @@ core_read(struct conn *c)
 {
     read_result_t result;
 
+    c->u_time = u_time_now();	/* Rajesh */
+
     result = c->udp ? core_read_udp(c) : core_read_tcp(c);
     switch (result) {
     case READ_NO_DATA_RECEIVED:
@@ -373,6 +375,11 @@ core_transmit(struct conn *c)
     if (c->msg_curr < c->msg_used) {
         ssize_t res;
         struct msghdr *m = &c->msg[c->msg_curr];
+	
+	/* Rajesh */
+	double processing_time = u_time_now() - c->u_time;
+	
+	fprintf(stderr, "%6.3f\n", processing_time*1000.0);	
 
         res = sendmsg(c->sd, m, 0);
         if (res > 0) {
@@ -572,6 +579,7 @@ core_drive_machine(struct conn *c)
 
         case CONN_NREAD:
             if (c->rlbytes == 0) {
+    		c->u_time = u_time_now();	/* Rajesh */
                 core_complete_nread(c);
                 break;
             }
@@ -594,6 +602,7 @@ core_drive_machine(struct conn *c)
 
             /* now try reading from the socket */
             n = read(c->sd, c->ritem, c->rlbytes);
+    	    c->u_time = u_time_now();		/* Rajesh */
             if (n > 0) {
                 stats_thread_incr_by(data_read, n);
 
@@ -825,7 +834,7 @@ core_create_inet_socket(int port, int udp)
             int flags = 1;
             error = setsockopt(sd, IPPROTO_IPV6, IPV6_V6ONLY, (char *) &flags, sizeof(flags));
             if (error != 0) {
-                log_error("set ipv6 on sd %d failed: %s", sd,
+                log_error("set nonblock on sd %d failed: %s", sd,
                           strerror(errno));
                 close(sd);
                 continue;

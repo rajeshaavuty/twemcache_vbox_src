@@ -68,6 +68,27 @@ static time_t process_started;
  */
 static volatile rel_time_t now;
 
+/* Rajesh */
+#define TV_TO_SEC(_tv)  ((_tv)->tv_sec + (1e-6 * (_tv)->tv_usec))
+static volatile double u_now;
+
+void
+u_time_update(void)
+{
+    int status;
+    struct timeval tv;
+
+    status = gettimeofday(&tv, NULL);
+    
+    if (status < 0) {
+        log_error("gettimeofday failed: %s", strerror(errno));
+    }
+
+    u_now = TV_TO_SEC(&tv);
+
+    log_debug(LOG_PVERB, "utime updated to %u", u_now);
+}
+
 void
 time_update(void)
 {
@@ -81,6 +102,15 @@ time_update(void)
     now = (rel_time_t) (timer.tv_sec - process_started);
 
     log_debug(LOG_PVERB, "time updated to %u", now);
+}
+
+/* Rajesh */
+double
+u_time_now(void)
+{
+    u_time_update();
+
+    return u_now;
 }
 
 rel_time_t

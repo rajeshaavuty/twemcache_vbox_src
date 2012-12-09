@@ -46,5 +46,7 @@ time_t time_now_abs(void);
 time_t time_started(void);
 rel_time_t time_reltime(time_t exptime);
 void time_init(void);
-
+/* Rajesh */
+double u_time_now(void);
+void u_time_update(void);
 #endif

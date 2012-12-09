@@ -136,6 +136,8 @@ struct conn {
 
     unsigned             noreply:1;        /* noreply? */
     unsigned             udp:1;            /* udp? */
+
+    double		 u_time;	   /* Rajesh */
 };
 
 STAILQ_HEAD(conn_tqh, conn);
