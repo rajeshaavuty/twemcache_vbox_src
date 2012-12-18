@@ -69,9 +69,10 @@ static time_t process_started;
 static volatile rel_time_t now;
 
 /* Rajesh */
-#define TV_TO_SEC(_tv)  ((_tv)->tv_sec + (1e-6 * (_tv)->tv_usec))
+#define TV_TO_SEC(_tv)  ((_tv)->tv_sec + (1e-9 * (_tv)->tv_nsec))
 static volatile double u_now;
 
+/*
 void
 u_time_update(void)
 {
@@ -85,6 +86,24 @@ u_time_update(void)
     }
 
     u_now = TV_TO_SEC(&tv);
+
+    log_debug(LOG_PVERB, "utime updated to %u", u_now);
+}
+*/
+
+void
+u_time_update(void)
+{
+    int status;
+    struct timespec current;
+
+    status = clock_gettime(CLOCK_MONOTONIC_RAW, &current);
+    
+    if (status < 0) {
+        log_error("gettimeofday failed: %s", strerror(errno));
+    }
+
+    u_now = TV_TO_SEC(&current);
 
     log_debug(LOG_PVERB, "utime updated to %u", u_now);
 }
